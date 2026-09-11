@@ -17,7 +17,7 @@
 - **reference_info** (TEXT) - справочная информация
 
 #### 2. Customers (Покупатели)
-- **id** (PK, INT) - уникальный идентификатор
+- **inn** (PK/QNICUE, VARCHAR) - уникальный идентификатор
 - **name** (VARCHAR) - наименование покупателя
 - **address** (VARCHAR) - адрес
 - **phone** (VARCHAR) - телефон
