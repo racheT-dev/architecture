@@ -98,3 +98,51 @@ class Customer:
             phone=parts[3].strip(),
             contact_person=parts[4].strip()
         )
+
+    def to_full_string(self) -> str:
+        """
+        Возвращает полное строковое представление объекта.
+        """
+        return (
+            f"Покупатель:\n"
+            f"  ИНН: {self.inn}\n"
+            f"  Наименование: {self.name}\n"
+            f"  Адрес: {self.address}\n"
+            f"  Телефон: {self.phone}\n"
+            f"  Контактное лицо: {self.contact_person}"
+        )
+
+    def to_short_string(self) -> str:
+        """
+        Возвращает краткое строковое представление объекта.
+        """
+        return f"{self.name} (ИНН: {self.inn})"
+
+    def __str__(self) -> str:
+        """
+        Строковое представление по умолчанию (вызывается при print(obj)).
+        По умолчанию выводим полную версию.
+        """
+        return self.to_full_string()
+
+    def __repr__(self) -> str:
+        """
+        Представление для разработчика (вызывается в консоли или при отладке).
+        """
+        return f"Customer(inn='{self.inn}', name='{self.name}')"
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Сравнение объектов на равенство.
+        Два покупателя равны, если они являются экземплярами Customer и их ИНН совпадают.
+        """
+        if not isinstance(other, Customer):
+            return False
+        return self.inn == other.inn
+
+    def __hash__(self) -> int:
+        """
+        Хэш-функция. Обязательна, если переопределен __eq__.
+        Позволяет использовать объекты Customer в множествах (set) и как ключи в словарях (dict).
+        """
+        return hash(self.inn)
