@@ -1,5 +1,5 @@
 from validator import CustomerValidator
-
+import json
 
 class Customer:
     """Класс, представляющий покупателя (независимая сущность)."""
@@ -61,3 +61,40 @@ class Customer:
     @contact_person.setter
     def contact_person(self, value: str):
         self._contact_person = CustomerValidator.validate_contact_person(value)
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "Customer":
+        """
+        Создание объекта Customer из JSON-строки.
+        Пример: '{"inn": "7707083893", "name": "ООО Ромашка", "address": "г. Москва", "phone": "+79991234567", "contact_person": "Иванов И.И."}'
+        """
+        data = json.loads(json_str)
+        
+        # Вызываем основной конструктор, который автоматически запустит валидацию!
+        return cls(
+            inn=data.get("inn", ""),
+            name=data.get("name", ""),
+            address=data.get("address", ""),
+            phone=data.get("phone", ""),
+            contact_person=data.get("contact_person", "")
+        )
+
+    @classmethod
+    def from_string(cls, str_repr: str) -> "Customer":
+        """
+        Создание объекта Customer из строки с разделителем '|'.
+        Пример: '7707083893|ООО Ромашка|г. Москва, ул. Ленина 1|+7 (999) 123-45-67|Иванов И.И.'
+        """
+        parts = str_repr.split("|")
+        
+        if len(parts) != 5:
+            raise ValueError(f"Ожидается 5 полей, разделённых '|', получено {len(parts)}")
+        
+        # Вызываем основной конструктор, который автоматически запустит валидацию!
+        return cls(
+            inn=parts[0].strip(),
+            name=parts[1].strip(),
+            address=parts[2].strip(),
+            phone=parts[3].strip(),
+            contact_person=parts[4].strip()
+        )
