@@ -16,7 +16,7 @@
 - **retail_price** (DECIMAL) - розничная цена
 - **reference_info** (TEXT) - справочная информация
 
-#### 2. Customers (Покупатели) ⭐ ВЫБРАНА ДЛЯ ЛР
+#### 2. Customers (Покупатели)
 - **id** (PK, INT) - уникальный идентификатор
 - **name** (VARCHAR) - наименование покупателя
 - **address** (VARCHAR) - адрес
