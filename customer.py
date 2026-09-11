@@ -1,28 +1,30 @@
+from validator import CustomerValidator
+
+
 class Customer:
-    """
-    Класс, представляющий покупателя (независимая сущность).
-    В качестве уникального бизнес-идентификатора используется ИНН.
-    """
+    """Класс, представляющий покупателя (независимая сущность)."""
 
     def __init__(self, inn: str, name: str, address: str, phone: str, contact_person: str):
-        # Инициализация через сеттеры для обеспечения инкапсуляции
+        """
+        Конструктор класса Customer.
+        Все поля валидируются через CustomerValidator.
+        Если данные невалидны, объект НЕ будет создан (выбросится ValueError).
+        """
+        # Валидация и присваивание через сеттеры
         self.inn = inn
         self.name = name
         self.address = address
         self.phone = phone
         self.contact_person = contact_person
 
-    # --- Инкапсуляция: ИНН (Главный уникальный идентификатор) ---
+    # --- Инкапсуляция: INN ---
     @property
     def inn(self) -> str:
         return self._inn
 
     @inn.setter
     def inn(self, value: str):
-        # Базовая проверка типа, детальная валидация будет в Пункте 4
-        if not isinstance(value, str):
-            raise TypeError("ИНН должен быть строкой")
-        self._inn = value.strip()
+        self._inn = CustomerValidator.validate_inn(value)
 
     # --- Инкапсуляция: Name ---
     @property
@@ -31,9 +33,7 @@ class Customer:
 
     @name.setter
     def name(self, value: str):
-        if not isinstance(value, str):
-            raise TypeError("Наименование должно быть строкой")
-        self._name = value.strip()
+        self._name = CustomerValidator.validate_name(value)
 
     # --- Инкапсуляция: Address ---
     @property
@@ -42,9 +42,7 @@ class Customer:
 
     @address.setter
     def address(self, value: str):
-        if not isinstance(value, str):
-            raise TypeError("Адрес должен быть строкой")
-        self._address = value.strip()
+        self._address = CustomerValidator.validate_address(value)
 
     # --- Инкапсуляция: Phone ---
     @property
@@ -53,9 +51,7 @@ class Customer:
 
     @phone.setter
     def phone(self, value: str):
-        if not isinstance(value, str):
-            raise TypeError("Телефон должен быть строкой")
-        self._phone = value.strip()
+        self._phone = CustomerValidator.validate_phone(value)
 
     # --- Инкапсуляция: Contact Person ---
     @property
@@ -64,6 +60,4 @@ class Customer:
 
     @contact_person.setter
     def contact_person(self, value: str):
-        if not isinstance(value, str):
-            raise TypeError("Контактное лицо должно быть строкой")
-        self._contact_person = value.strip()
+        self._contact_person = CustomerValidator.validate_contact_person(value)
