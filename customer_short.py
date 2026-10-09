@@ -1,45 +1,56 @@
 from customer import Customer
 
 
-class CustomerShort(Customer):
+class CustomerShort:
     """
-    Класс краткой версии покупателя (Пункт 8 и 9).
-    Наследуется от Customer.
+    Класс краткой версии покупателя (Пункт 8-9).
+    
+    Использует паттерн Adapter (Адаптер) через композицию:
+    - НЕ наследует Customer (нарушало бы принцип подстановки Лисков)
+    - Содержит ссылку на объект Customer
+    - Предоставляет упрощенный интерфейс только к нужным полям
     """
 
-    def __init__(self, inn: str, name: str):
+    def __init__(self, customer: Customer):
         """
-        Конструктор краткой версии.
-        Мы НЕ дублируем код валидации (Пункт 4), а вызываем конструктор родителя.
-        Для полей, которые не нужны в краткой версии, передаем заглушки.
+        Конструктор принимает объект Customer (композиция).
         """
-        super().__init__(
-            inn=inn,
-            name=name,
-            address="Не указан",
-            phone="Не указан",
-            contact_person="Не указан"
-        )
+        if not isinstance(customer, Customer):
+            raise TypeError("CustomerShort требует объект типа Customer")
+        self._customer = customer
+
+    @property
+    def inn(self) -> str:
+        """Делегируем получение ИНН объекту Customer."""
+        return self._customer.inn
+
+    @property
+    def name(self) -> str:
+        """Делегируем получение наименования объекту Customer."""
+        return self._customer.name
 
     def to_full_string(self) -> str:
-        """
-        Переопределяем полный вывод.
-        В краткой версии мы не хотим видеть поля "Не указан", 
-        поэтому меняем логику отображения.
-        """
+        """Краткая полная версия (только ИНН и имя)."""
         return (
             f"Покупатель (краткая карточка):\n"
             f"  ИНН: {self.inn}\n"
             f"  Наименование: {self.name}"
         )
 
-    # Метод to_short_string() мы УДАЛЯЕМ отсюда.
-    # Он будет автоматически наследоваться от класса Customer, 
-    # так как его логика там уже написана верно. Это устраняет повтор кода (Пункт 9).
+    def to_short_string(self) -> str:
+        """Краткая версия."""
+        return f"{self.name} (ИНН: {self.inn})"
 
     def __str__(self) -> str:
-        """
-        Для краткой версии объекта логично, что print(obj) 
-        выводит сразу краткую информацию, а не полную.
-        """
         return self.to_short_string()
+
+    def __repr__(self) -> str:
+        return f"CustomerShort(inn='{self.inn}', name='{self.name}')"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, CustomerShort):
+            return False
+        return self.inn == other.inn
+
+    def __hash__(self) -> int:
+        return hash(self.inn)
