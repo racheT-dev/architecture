@@ -1,23 +1,85 @@
-from validator import CustomerValidator
-import json
+import re
+
+
+class CustomerValidator:
+    """Класс со статическими методами валидации полей Customer."""
+
+    @staticmethod
+    def _validate_string(value: str, field_name: str, min_len: int, max_len: int) -> str:
+        """Универсальный метод для валидации строковых полей (Пункт 5)."""
+        if not isinstance(value, str):
+            raise TypeError(f"{field_name} должен быть строкой")
+        
+        cleaned = value.strip()
+        
+        if len(cleaned) < min_len:
+            raise ValueError(f"{field_name} слишком короткий (минимум {min_len} символов)")
+        
+        if len(cleaned) > max_len:
+            raise ValueError(f"{field_name} слишком длинный (максимум {max_len} символов)")
+        
+        return cleaned
+
+    @staticmethod
+    def validate_inn(inn: str) -> str:
+        if not isinstance(inn, str):
+            raise TypeError("ИНН должен быть строкой")
+        cleaned = inn.strip()
+        if not cleaned.isdigit():
+            raise ValueError("ИНН должен содержать только цифры")
+        if len(cleaned) not in (10, 12):
+            raise ValueError("ИНН должен содержать 10 или 12 цифр")
+        return cleaned
+
+    @staticmethod
+    def validate_name(name: str) -> str:
+        return CustomerValidator._validate_string(name, "Наименование", 2, 100)
+
+    @staticmethod
+    def validate_address(address: str) -> str:
+        return CustomerValidator._validate_string(address, "Адрес", 5, 255)
+
+    @staticmethod
+    def validate_phone(phone: str) -> str:
+        if not isinstance(phone, str):
+            raise TypeError("Телефон должен быть строкой")
+        cleaned = phone.strip()
+        if not re.match(r'^[\d\s\-\(\)\+]+$', cleaned):
+            raise ValueError("Телефон содержит недопустимые символы")
+        digits_only = re.sub(r'\D', '', cleaned)
+        if len(digits_only) < 10 or len(digits_only) > 15:
+            raise ValueError("Телефон должен содержать от 10 до 15 цифр")
+        return cleaned
+
+    @staticmethod
+    def validate_contact_person(contact_person: str) -> str:
+        return CustomerValidator._validate_string(contact_person, "Контактное лицо", 2, 100)
+
 
 class Customer:
     """Класс, представляющий покупателя (независимая сущность)."""
 
     def __init__(self, inn: str, name: str, address: str, phone: str, contact_person: str):
-        """
-        Конструктор класса Customer.
-        Все поля валидируются через CustomerValidator.
-        Если данные невалидны, объект НЕ будет создан (выбросится ValueError).
-        """
-        # Валидация и присваивание через сеттеры
         self.inn = inn
         self.name = name
         self.address = address
         self.phone = phone
         self.contact_person = contact_person
 
-    # --- Инкапсуляция: INN ---
+    @classmethod
+    def from_dict(cls, data: dict) -> "Customer":
+        """
+        Единственный метод создания объекта из универсального формата (словарь).
+        Парсинг из JSON/строки/CSV вынесен в отдельные классы-фабрики (паттерн Factory).
+        """
+        return cls(
+            inn=data["inn"],
+            name=data["name"],
+            address=data["address"],
+            phone=data["phone"],
+            contact_person=data["contact_person"]
+        )
+
     @property
     def inn(self) -> str:
         return self._inn
@@ -26,7 +88,6 @@ class Customer:
     def inn(self, value: str):
         self._inn = CustomerValidator.validate_inn(value)
 
-    # --- Инкапсуляция: Name ---
     @property
     def name(self) -> str:
         return self._name
@@ -35,7 +96,6 @@ class Customer:
     def name(self, value: str):
         self._name = CustomerValidator.validate_name(value)
 
-    # --- Инкапсуляция: Address ---
     @property
     def address(self) -> str:
         return self._address
@@ -44,7 +104,6 @@ class Customer:
     def address(self, value: str):
         self._address = CustomerValidator.validate_address(value)
 
-    # --- Инкапсуляция: Phone ---
     @property
     def phone(self) -> str:
         return self._phone
@@ -53,7 +112,6 @@ class Customer:
     def phone(self, value: str):
         self._phone = CustomerValidator.validate_phone(value)
 
-    # --- Инкапсуляция: Contact Person ---
     @property
     def contact_person(self) -> str:
         return self._contact_person
@@ -62,47 +120,7 @@ class Customer:
     def contact_person(self, value: str):
         self._contact_person = CustomerValidator.validate_contact_person(value)
 
-    @classmethod
-    def from_json(cls, json_str: str) -> "Customer":
-        """
-        Создание объекта Customer из JSON-строки.
-        Пример: '{"inn": "7707083893", "name": "ООО Ромашка", "address": "г. Москва", "phone": "+79991234567", "contact_person": "Иванов И.И."}'
-        """
-        data = json.loads(json_str)
-        
-        # Вызываем основной конструктор, который автоматически запустит валидацию!
-        return cls(
-            inn=data.get("inn", ""),
-            name=data.get("name", ""),
-            address=data.get("address", ""),
-            phone=data.get("phone", ""),
-            contact_person=data.get("contact_person", "")
-        )
-
-    @classmethod
-    def from_string(cls, str_repr: str) -> "Customer":
-        """
-        Создание объекта Customer из строки с разделителем '|'.
-        Пример: '7707083893|ООО Ромашка|г. Москва, ул. Ленина 1|+7 (999) 123-45-67|Иванов И.И.'
-        """
-        parts = str_repr.split("|")
-        
-        if len(parts) != 5:
-            raise ValueError(f"Ожидается 5 полей, разделённых '|', получено {len(parts)}")
-        
-        # Вызываем основной конструктор, который автоматически запустит валидацию!
-        return cls(
-            inn=parts[0].strip(),
-            name=parts[1].strip(),
-            address=parts[2].strip(),
-            phone=parts[3].strip(),
-            contact_person=parts[4].strip()
-        )
-
     def to_full_string(self) -> str:
-        """
-        Возвращает полное строковое представление объекта.
-        """
         return (
             f"Покупатель:\n"
             f"  ИНН: {self.inn}\n"
@@ -113,36 +131,18 @@ class Customer:
         )
 
     def to_short_string(self) -> str:
-        """
-        Возвращает краткое строковое представление объекта.
-        """
         return f"{self.name} (ИНН: {self.inn})"
 
     def __str__(self) -> str:
-        """
-        Строковое представление по умолчанию (вызывается при print(obj)).
-        По умолчанию выводим полную версию.
-        """
         return self.to_full_string()
 
     def __repr__(self) -> str:
-        """
-        Представление для разработчика (вызывается в консоли или при отладке).
-        """
         return f"Customer(inn='{self.inn}', name='{self.name}')"
 
     def __eq__(self, other: object) -> bool:
-        """
-        Сравнение объектов на равенство.
-        Два покупателя равны, если они являются экземплярами Customer и их ИНН совпадают.
-        """
         if not isinstance(other, Customer):
             return False
         return self.inn == other.inn
 
     def __hash__(self) -> int:
-        """
-        Хэш-функция. Обязательна, если переопределен __eq__.
-        Позволяет использовать объекты Customer в множествах (set) и как ключи в словарях (dict).
-        """
         return hash(self.inn)
