@@ -1,5 +1,5 @@
 import re
-
+from CustomerFactory import CustomerFactory
 
 class CustomerValidator:
     """Класс со статическими методами валидации полей Customer."""
