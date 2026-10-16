@@ -59,12 +59,21 @@ class CustomerValidator:
 class Customer:
     """Класс, представляющий покупателя (независимая сущность)."""
 
-    def __init__(self, inn: str, name: str, address: str, phone: str, contact_person: str):
-        self.inn = inn
-        self.name = name
-        self.address = address
-        self.phone = phone
-        self.contact_person = contact_person
+    def __init__(self, data):
+        """
+        Универсальный конструктор.
+        data: dict, JSON-строка, CSV-строка или строка с разделителем '|'
+        Фабрика автоматически определяет формат.
+        """
+        # Делегируем определение формата и парсинг фабрике
+        parsed_data = CustomerFactory.parse(data)
+    
+        # Инициализируем поля через сеттеры (валидация!)
+        self.inn = parsed_data.get("inn", "")
+        self.name = parsed_data.get("name", "")
+        self.address = parsed_data.get("address", "")
+        self.phone = parsed_data.get("phone", "")
+        self.contact_person = parsed_data.get("contact_person", "")
 
     @classmethod
     def from_dict(cls, data: dict) -> "Customer":
