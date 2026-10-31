@@ -18,7 +18,9 @@ print(c3.to_short_string())
 
 print("\n--- 4. Проверка валидации (плохой ИНН) ---")
 try:
-    bad_c = Customer('{"inn": "123", "name": "Тест", "address": "ул. 1", "phone": "+79991234567", "contact_person": "Иван"}')
+    bad_c = Customer(
+        '{"inn": "123", "name": "Тест", "address": "ул. 1", "phone": "+79991234567", "contact_person": "Иван"}'
+    )
 except ValueError as e:
     print(f"✅ Ошибка поймана: {e}")
 

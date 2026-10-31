@@ -12,11 +12,11 @@ class CustomerRepYaml(CustomerRepBase):
 
     def _load_data(self) -> List[dict]:
         if os.path.exists(self.filepath):
-            with open(self.filepath, 'r', encoding='utf-8') as f:
+            with open(self.filepath, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f)
                 return data if data else []
         return []
 
     def _save_data(self, data: List[dict]) -> None:
-        with open(self.filepath, 'w', encoding='utf-8') as f:
+        with open(self.filepath, "w", encoding="utf-8") as f:
             yaml.dump(data, f, allow_unicode=True, default_flow_style=False)

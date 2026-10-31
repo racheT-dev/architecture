@@ -15,7 +15,7 @@ class CustomerRepBase(ABC):
         self.load_all()
 
     # --- Абстрактные методы (реализуются в дочерних классах) ---
-    
+
     @abstractmethod
     def _load_data(self) -> List[dict]:
         """Чтение сырых данных (список словарей) из источника."""
@@ -38,9 +38,13 @@ class CustomerRepBase(ABC):
         """b. Запись всех значений."""
         data = [
             {
-                "inn": c.inn, "name": c.name, "address": c.address,
-                "phone": c.phone, "contact_person": c.contact_person
-            } for c in self._customers
+                "inn": c.inn,
+                "name": c.name,
+                "address": c.address,
+                "phone": c.phone,
+                "contact_person": c.contact_person,
+            }
+            for c in self._customers
         ]
         self._save_data(data)
 

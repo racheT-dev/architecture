@@ -16,7 +16,7 @@ class CustomerRepDbAdapter(CustomerRepBase):
         # Инициализируем поля базового класса вручную.
         self.filepath = "postgresql_db"
         self._customers: List[Customer] = []
-        
+
         # Создаем экземпляр адаптируемого класса (Adaptee)
         self._adaptee = CustomerRepDB()
 
@@ -28,7 +28,13 @@ class CustomerRepDbAdapter(CustomerRepBase):
         cursor.execute("SELECT * FROM customers")
         rows = cursor.fetchall()
         return [
-            {"inn": r[0], "name": r[1], "address": r[2], "phone": r[3], "contact_person": r[4]}
+            {
+                "inn": r[0],
+                "name": r[1],
+                "address": r[2],
+                "phone": r[3],
+                "contact_person": r[4],
+            }
             for r in rows
         ]
 
@@ -40,7 +46,13 @@ class CustomerRepDbAdapter(CustomerRepBase):
         for item in data:
             cursor.execute(
                 "INSERT INTO customers (inn, name, address, phone, contact_person) VALUES (%s, %s, %s, %s, %s)",
-                (item["inn"], item["name"], item["address"], item["phone"], item["contact_person"])
+                (
+                    item["inn"],
+                    item["name"],
+                    item["address"],
+                    item["phone"],
+                    item["contact_person"],
+                ),
             )
         conn.commit()
 
@@ -55,7 +67,7 @@ class CustomerRepDbAdapter(CustomerRepBase):
 
     def add(self, customer: Customer) -> None:
         self._adaptee.add(customer)
-        self._customers.append(customer) # Синхронизируем локальный список
+        self._customers.append(customer)  # Синхронизируем локальный список
 
     def replace(self, inn: str, new_customer: Customer) -> None:
         self._adaptee.replace(inn, new_customer)

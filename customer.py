@@ -1,23 +1,30 @@
 import re
 from CustomerFactory import CustomerFactory
 
+
 class CustomerValidator:
     """Класс со статическими методами валидации полей Customer."""
 
     @staticmethod
-    def _validate_string(value: str, field_name: str, min_len: int, max_len: int) -> str:
+    def _validate_string(
+        value: str, field_name: str, min_len: int, max_len: int
+    ) -> str:
         """Универсальный метод для валидации строковых полей (Пункт 5)."""
         if not isinstance(value, str):
             raise TypeError(f"{field_name} должен быть строкой")
-        
+
         cleaned = value.strip()
-        
+
         if len(cleaned) < min_len:
-            raise ValueError(f"{field_name} слишком короткий (минимум {min_len} символов)")
-        
+            raise ValueError(
+                f"{field_name} слишком короткий (минимум {min_len} символов)"
+            )
+
         if len(cleaned) > max_len:
-            raise ValueError(f"{field_name} слишком длинный (максимум {max_len} символов)")
-        
+            raise ValueError(
+                f"{field_name} слишком длинный (максимум {max_len} символов)"
+            )
+
         return cleaned
 
     @staticmethod
@@ -44,16 +51,18 @@ class CustomerValidator:
         if not isinstance(phone, str):
             raise TypeError("Телефон должен быть строкой")
         cleaned = phone.strip()
-        if not re.match(r'^[\d\s\-\(\)\+]+$', cleaned):
+        if not re.match(r"^[\d\s\-\(\)\+]+$", cleaned):
             raise ValueError("Телефон содержит недопустимые символы")
-        digits_only = re.sub(r'\D', '', cleaned)
+        digits_only = re.sub(r"\D", "", cleaned)
         if len(digits_only) < 10 or len(digits_only) > 15:
             raise ValueError("Телефон должен содержать от 10 до 15 цифр")
         return cleaned
 
     @staticmethod
     def validate_contact_person(contact_person: str) -> str:
-        return CustomerValidator._validate_string(contact_person, "Контактное лицо", 2, 100)
+        return CustomerValidator._validate_string(
+            contact_person, "Контактное лицо", 2, 100
+        )
 
 
 class Customer:
@@ -67,7 +76,7 @@ class Customer:
         """
         # Делегируем определение формата и парсинг фабрике
         parsed_data = CustomerFactory.parse(data)
-    
+
         # Инициализируем поля через сеттеры (валидация!)
         self.inn = parsed_data.get("inn", "")
         self.name = parsed_data.get("name", "")
@@ -86,7 +95,7 @@ class Customer:
             name=data["name"],
             address=data["address"],
             phone=data["phone"],
-            contact_person=data["contact_person"]
+            contact_person=data["contact_person"],
         )
 
     @property
