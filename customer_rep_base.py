@@ -12,19 +12,40 @@ class CustomerRepBase(ABC):
     def __init__(self, filepath: str):
         self.filepath = filepath
         self._customers: List[Customer] = []
+        
+        # Определяем формат по расширению
+        if filepath.endswith('.json'):
+            self._format = 'json'
+        elif filepath.endswith('.yaml') or filepath.endswith('.yml'):
+            self._format = 'yaml'
+        else:
+            raise ValueError(f"Неподдерживаемый формат: {filepath}. Используйте .json или .yaml")
+        
         self.load_all()
 
-    # --- Абстрактные методы (реализуются в дочерних классах) ---
+    # --- Работа с форматами (вся логика здесь) ---
 
-    @abstractmethod
     def _load_data(self) -> List[dict]:
-        """Чтение сырых данных (список словарей) из источника."""
-        pass
-
-    @abstractmethod
+        if not os.path.exists(self.filepath):
+            return []
+        
+        if self._format == 'json':
+            with open(self.filepath, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        elif self._format == 'yaml':
+            import yaml
+            with open(self.filepath, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+                return data if data else []
+        
     def _save_data(self, data: List[dict]) -> None:
-        """Запись сырых данных (список словарей) в источник."""
-        pass
+        if self._format == 'json':
+            with open(self.filepath, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+        elif self._format == 'yaml':
+            import yaml
+            with open(self.filepath, 'w', encoding='utf-8') as f:
+                yaml.dump(data, f, allow_unicode=True, default_flow_style=False)
 
     # --- Общая бизнес-логика (работает только со списком в памяти) ---
 
